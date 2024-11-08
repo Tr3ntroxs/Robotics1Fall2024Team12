@@ -126,23 +126,23 @@ def path_plan(robot,q0,P0Td,R0Td,epsilon_r,epsilon_p,q_prime_min,q_prime_max,N):
         f = getqp_f(qprev, epsilon_r, epsilon_p )
         
         q_prime_temp = solve_qp(H,f,[],[],[],[],lb,ub,[])
-#         q_prime_temp, DONTCARE, exitflag(k) = solve_qp(H,f,[],[],[],[],lb,ub,[])
+        # q_prime_temp, DONTCARE, exitflag(k) = solve_qp(H,f,[],[],[],[],lb,ub,[])
         q_prime_temp = q_prime_temp[1:n]
         # check exit flag - all elements should be 1
         if exitflag(k) != 1:
             print('Generation Error')
             return
-        q_prime[0:,k] = q_prime_temp;
+        q_prime[0:,k] = q_prime_temp
 
 
         qprev = qprev + (1/N)*q_prime_temp
 
 
-        q_lmbd[0:,k+1] = qprev
+        q_lmbd[0:,k] = qprev
         Rtemp, Ptemp = rox.fwdkin(robot,qprev)
-        P0T_lmbd[0:,k+1] = Ptemp
-        R0T_lmbd[0:,:,k+1] = Rtemp
-        Eul_lmbd[0:,k+1] = np.flip((Rtemp).as_euler("zxy", True))
+        P0T_lmbd[0:,k] = Ptemp
+        R0T_lmbd[0:,:,k] = Rtemp
+        Eul_lmbd[0:,k] = np.flip((Rtemp).as_euler("zxy", True))
         
     # Chop off excess
     q_lmbd[0:,len(q_lmbd)] = []
@@ -208,16 +208,6 @@ def fk_Dofbot (q):
     return Rot, Pot
 
 
-
-
-
-
-
-
-
-
-
-
 def rotx(theta):
     # return the principal axis rotation matrix for a rotation about the Xaxis by theta degrees
     if isinstance(theta,np.ndarray):
@@ -249,8 +239,8 @@ def qprimelimits_full(qlimit,qprev,N,qpmax,qpmin):
     lb_js = N*(qlimit[0:,0] - qprev)
     ub_js = N*(qlimit[0:,1] - qprev) # 1 and 2 replaced; assumed they might be matlab index error
     # Compare and find most restrictive bound
-    lb = np.zeros(n+2) # (n+2,1) corrected
-    ub = np.zeros(n+2)
+    lb = np.zeros((n+2, 1)) # (n+2,1) corrected
+    ub = np.zeros((n+2, 1))
     ub[n-1] = 1
     ub[n] = 1
     for k in range(n):
@@ -277,7 +267,7 @@ def getqp_H(dq, J, vr, vp, er, ep):
     return H
 
 def getqp_f( dq, er, ep ):
-    f = -2*[np.zeros(1,len(dq)),er,ep].T
+    f = -2*np.array(np.zeros((1,len(dq))),er,ep).T
     return f
 
 
